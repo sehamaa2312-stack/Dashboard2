@@ -111,12 +111,14 @@ with tab3:
 
     top_indexed = filtered_df[['Target Market', 'Total Score', 'Perirtizing']].sort_values(by='Total Score', ascending=False)
 
+styled_df = top_indexed.style.background_gradient(subset=['Total Score'], cmap='viridis')
 
-    st.dataframe(
-        top_indexed.style.background_gradient(subset=['Total Score'], cmap='viridis'),
-        use_container_width=True,
-        hide_index=True
-    )
+st.dataframe(
+    styled_df,
+    use_container_width=True,
+    hide_index=True
+)
+
 
 
 with tab4:
