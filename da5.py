@@ -35,7 +35,6 @@ st.markdown("""
 @st.cache_data
 def load_data():
     df = pd.read_csv('ph5.csv')
-
     df.columns = df.columns.str.strip()
     return df
 
@@ -43,17 +42,17 @@ df = load_data()
 
 
 st.title("🌍 Egypt Global Export Attractiveness Monitor")
-st.markdown("داشبورد ديناميكي ذكي لتحليل وتحديد الأسواق الواعدة وفرص التصدير المتاحة أمام الدولة المصرية.")
+st.markdown("An intelligent dynamic dashboard designed to analyze and identify promising target markets and export opportunities for Egypt.")
 st.markdown("---")
 
 
-st.sidebar.header("🎛️ لوحة التحكم والفلترة")
-st.sidebar.markdown("يمكنك تصفية البيانات ديناميكياً بناءً على فئة أولويات الأسواق المستهدفة:")
+st.sidebar.header("🎛️ Control & Filter Panel")
+st.sidebar.markdown("Dynamically filter data based on target market priority status:")
 
 
 all_priorities = df['Perirtizing'].unique().tolist()
 selected_priorities = st.sidebar.multiselect(
-    "اختر فئة الأولويات (Priority Status):",
+    "Select Priority Status:",
     options=all_priorities,
     default=all_priorities
 )
@@ -62,27 +61,27 @@ filtered_df = df[df['Perirtizing'].isin(selected_priorities)]
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.metric(label="📊 إجمالي الأسواق المستهدفة", value=len(filtered_df))
+    st.metric(label="📊 Total Target Markets", value=len(filtered_df))
 with col2:
-    st.metric(label="🔝 أعلى مؤشر جاذبية تم تسجيله", value=f"{filtered_df['Total Score'].max()} / 10")
+    st.metric(label="🔝 Highest Attractiveness Score", value=f"{filtered_df['Total Score'].max()} / 10")
 with col3:
-    st.metric(label="📦 متوسط حجم الأسواق (Market Size)", value=f"{int(filtered_df['Market Size'].mean()):,}")
+    st.metric(label="📦 Average Market Size", value=f"{int(filtered_df['Market Size'].mean()):,}")
 with col4:
-    st.metric(label="📈 أعلى معدل نمو متاح", value=f"{filtered_df['Growth'].max()}%")
+    st.metric(label="📈 Maximum Available Growth Rate", value=f"{filtered_df['Growth'].max()}%")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 
 tab1, tab2, tab3, tab4 = st.tabs([
-    "🎯 Q1: آلية تقييم الأسواق",
-    "🔢 Q2: الدرجات التفصيلية (Scores)",
-    "🏆 Q3: الأعلى في مؤشر الجاذبية",
-    "🇪🇬 Q4: الفرص الواعدة لمصر"
+    "🎯 Q1: Market Evaluation Mechanism",
+    "🔢 Q2: Detailed Scores Matrix",
+    "🏆 Q3: Top Attractiveness Index",
+    "🇪🇬 Q4: Promising Opportunities for Egypt"
 ])
 
 with tab1:
-    st.subheader("📌 تحليل العوامل الخام المؤثرة في تقييم الأسواق")
-    st.markdown("يعرض هذا الجدول العوامل والمقاييس الأساسية المستهدفة (الحجم، النمو، اللوجستيات، التعرفة الجمركية) لكل دولة بشكل نقي بدون تعقيد:")
+    st.subheader("📌 Analysis of Raw Factors Influencing Market Evaluation")
+    st.markdown("This table displays the core raw metrics (Size, Growth, Logistics, Tariffs) for each country clearly and without complexity:")
 
     q1_cols = ['Target Market', 'Market Size', 'Growth', 'Logistics', 'Tariffs', 'Perirtizing']
     st.dataframe(
@@ -93,8 +92,8 @@ with tab1:
 
 
 with tab2:
-    st.subheader("🔢 نقاط التقييم المعيارية لكل سوق (Scores Matrix)")
-    st.markdown("هنا يتم تحويل القيم الخام إلى نقاط معيارية من (1 إلى 10) لحساب الوزن النسبي العادل:")
+    st.subheader("🔢 Labeled Standard Scores for Each Market (Scores Matrix)")
+    st.markdown("Here, raw values are transformed into standardized scores (from 1 to 10) to calculate a fair relative weight:")
 
     q2_cols = ['Target Market', 'Market size score', 'Growth score', 'Logistics score', 'Tariff score', 'Total Score']
     st.dataframe(
@@ -105,41 +104,35 @@ with tab2:
 
 
 with tab3:
-    st.subheader("🏆 الأسواق المتصدرة لمؤشر جاذبية التصدير (Export Attractiveness Index)")
-    st.markdown("الأسواق المرتبة تنازلياً بناءً على الـ **Total Score** النهائي:")
-
+    st.subheader("🏆 Leading Markets in the Export Attractiveness Index")
+    st.markdown("Markets sorted in descending order based on the final **Total Score**:")
 
     top_indexed = filtered_df[['Target Market', 'Total Score', 'Perirtizing']].sort_values(by='Total Score', ascending=False)
 
-styled_df = top_indexed.style.background_gradient(subset=['Total Score'], cmap='viridis')
-
-st.dataframe(
-    styled_df,
-    use_container_width=True,
-    hide_index=True
-)
-
+    st.dataframe(
+        top_indexed.style.background_gradient(subset=['Total Score'], cmap='viridis'),
+        use_container_width=True,
+        hide_index=True
+    )
 
 
 with tab4:
-    st.subheader("🚀 الخريطة الاستراتيجية لأبرز الفرص التصديرية لمصر")
-
+    st.subheader("🚀 Strategic Roadmap for Egypt's Key Export Opportunities")
 
     egypt_hits = filtered_df[filtered_df['Perirtizing'] == 'Priority'].sort_values(by='Total Score', ascending=False)
 
     if not egypt_hits.empty:
-        st.success("💡 الأسواق المستهدفة فوراً (الخيار الأول للمصدر المصري):")
+        st.success("💡 Immediate Target Markets (First choice for Egyptian exporters):")
         st.dataframe(
             egypt_hits[['Target Market', 'Total Score', 'Market Size', 'Growth', 'Logistics', 'Tariffs']],
             use_container_width=True,
             hide_index=True
         )
     else:
-        st.warning("⚠️ لم يتم تحديد أسواق ذات أولوية قصوى (Priority) في الفلترة الحالية للـ Sidebar.")
-
+        st.warning("⚠️ No high-priority markets found with the current Sidebar filters.")
 
     st.markdown("---")
-    st.info("⏳ أسواق واعدة على المدى الطويل كبدائل استراتيجية (Long-term Opportunities):")
+    st.info("⏳ Promising Long-term Strategic Alternative Opportunities:")
     long_term = filtered_df[filtered_df['Perirtizing'] == 'Long-term Opportunity'].sort_values(by='Total Score', ascending=False)
     st.dataframe(
         long_term[['Target Market', 'Total Score', 'Market Size', 'Growth']],
